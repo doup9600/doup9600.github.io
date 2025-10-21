@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice | Fake Casino</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Dice Game</h1>
+    <p class="balance">Balance: <span id="balance">0</span> coins</p>
+
+    <div class="bet-area">
+      <label for="bet">Bet:</label>
+      <input type="number" id="bet" value="100" min="1">
+
+      <label for="chosen">Number:</label>
+      <select id="chosen">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6" selected>6</option>
+      </select>
+
+      <button id="rollBtn">Roll Dice</button>
+    </div>
+
+    <div class="dice-result">
+      <p id="message">Choose a number and roll!</p>
+      <div id="dice" class="dice">🎲</div>
+    </div>
+
+    <div class="bottom-btns">
+      <button id="backBtn">🏠 Back to Hub</button>
+      <button id="resetBtn">Reset Balance</button>
+    </div>
+  </div>
+
+  <script>
+    // Constants
+    const BALANCE_KEY = "fakeCasinoBalance";
+
+    // Elements
+    const balanceEl = document.getElementById("balance");
+    const betEl = document.getElementById("bet");
+    const chosenEl = document.getElementById("chosen");
+    const messageEl = document.getElementById("message");
+    const diceEl = document.getElementById("dice");
+    const rollBtn = document.getElementById("rollBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const backBtn = document.getElementById("backBtn");
+
+    // Load balance
+    let balance = parseInt(localStorage.getItem(BALANCE_KEY)) || 1000;
+    updateDisplay();
+
+    function updateDisplay() {
+      balanceEl.textContent = balance;
+      localStorage.setItem(BALANCE_KEY, balance);
+    }
+
+    function rollDice() {
+      const bet = parseInt(betEl.value);
+      const chosen = parseInt(chosenEl.value);
+      if (isNaN(bet) || bet <= 0) {
+        messageEl.textContent = "Enter a valid bet!";
+        return;
+      }
+      if (bet > balance) {
+        messageEl.textContent = "Not enough coins!";
+        return;
+      }
+
+      // roll dice 1–6
+      const roll = Math.floor(Math.random() * 6) + 1;
+      diceEl.textContent = `🎲 ${roll}`;
+
+      if (roll === chosen) {
+        const winnings = bet * 5;
+        balance += winnings;
+        messageEl.textContent = `You rolled ${roll} (your pick)! You won +${winnings} coins 🎉`;
+      } else {
+        balance -= bet;
+        messageEl.textContent = `You rolled ${roll}. You lost ${bet} coins 😢`;
+      }
+
+      updateDisplay();
+
+      if (balance <= 0) {
+        messageEl.textContent = "You're out of coins! Click Reset to restart.";
+      }
+    }
+
+    // Buttons
+    rollBtn.addEventListener("click", rollDice);
+    resetBtn.addEventListener("click", () => {
+      balance = 1000;
+      messageEl.textContent = "Balance reset.";
+      updateDisplay();
+    });
+    backBtn.addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+  </script>
+</body>
+</html>
